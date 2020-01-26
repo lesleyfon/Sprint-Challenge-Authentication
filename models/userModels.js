@@ -12,6 +12,11 @@ function findById(id){
     return db('users').where('id', id).select('id', 'username').first();
 }
 
+function fetchUserBy(username){
+    
+    return db('users').where('username', username).first();
+}
 module.exports = {
-    addUser
+    addUser,
+    fetchUserBy
 }
