@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const userModels = require('./../models/userModels');
 
@@ -37,8 +38,14 @@ router.post('/login', async (req, res) => {
     } else{
       const user = await userModels.fetchUserBy(username);
       if(user && bcrypt.compareSync(password, user.password)){
+         const token = signToken({
+            userId: user.id,
+           username
+         });
+
           res.status(200).json({
-            message: 'Login successful'
+            message: 'Login successful',
+            token
           })
         }else{
           res.status(200).json({
@@ -48,12 +55,23 @@ router.post('/login', async (req, res) => {
 
     }
   } catch (error) {
+    console.log(error)
     res.status(400).json({
       message: 'Server Error',
-      error
+      error: error
     })
   }
-  // implement login
+
 });
+
+
+function signToken(user){
+  const secret = process.env.JWT_SECRETE;
+  const options = {
+    expiresIn: '60s'
+  }
+
+  return jwt.sign(user, secret, options);
+}
 
 module.exports = router;
